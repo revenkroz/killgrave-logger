@@ -14,13 +14,13 @@ RUN go mod verify
 COPY . .
 
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
-RUN go build -o killgravelogger -ldflags "-w -s" .
+RUN go build -o kgcollector -ldflags "-w -s" .
 
 
-FROM alpine:3.16 AS prod
+FROM alpine:3.20 AS prod
 
 WORKDIR /app
 
-COPY --from=backend /app/killgravelogger /app/
+COPY --from=backend /app/kgcollector /app/
 
-CMD [ "/app/killgravelogger" ]
+CMD [ "/app/kgcollector" ]

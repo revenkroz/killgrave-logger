@@ -119,6 +119,7 @@ func saveLog(
 	defer file.Close()
 
 	// read file
+	file.Seek(0, 0)
 	dec := json.NewDecoder(file)
 	err = dec.Decode(&imposters)
 	if err != nil {
@@ -148,6 +149,10 @@ func saveLog(
 		Headers: map[string]string{},
 	}
 	for k, v := range l.Response.Header {
+		if k == "Content-Encoding" || k == "Date" {
+			continue
+		}
+
 		res.Headers[k] = strings.Join(v, ", ")
 	}
 	body, err := io.ReadAll(l.Response.Body)
