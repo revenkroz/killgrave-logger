@@ -135,10 +135,15 @@ func saveLog(
 	}
 
 	// delete if already exists
+	indexesToDelete := make([]int, 0)
 	for imposter := range imposters {
 		if imposters[imposter].Request.Hash() == req.Hash() {
-			imposters = append(imposters[:imposter], imposters[imposter+1:]...)
+			indexesToDelete = append(indexesToDelete, imposter)
 		}
+	}
+
+	for _, i := range indexesToDelete {
+		imposters = append(imposters[:i], imposters[i+1:]...)
 	}
 
 	res := KillgraveResponse{
