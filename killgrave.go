@@ -79,31 +79,25 @@ func createDir(
 	return dir, nil
 }
 
-func getFile(
+func createFile(
 	filepath string,
-) (*os.File, error) {
+) error {
 	if _, err := os.Stat(filepath); err != nil {
 		file, err := os.Create(filepath)
 		if err != nil {
 			fmt.Println(err)
-			return nil, err
+			return err
 		}
 
 		_, err = file.Write([]byte("[]"))
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return file, nil
+		return file.Close()
 	}
 
-	file, err := os.OpenFile(filepath, os.O_RDWR, 0644)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return file, nil
+	return nil
 }
 
 func saveLog(
@@ -112,18 +106,21 @@ func saveLog(
 ) error {
 	imposters := make([]KillgraveImposter, 0)
 
-	file, err := getFile(dir + "/imposters.json")
+	filepath := dir + "/imposters.json"
+	err := createFile(filepath)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
 	// read file
-	file.Seek(0, 0)
-	dec := json.NewDecoder(file)
-	err = dec.Decode(&imposters)
+	data, err := fileGetContents(filepath)
 	if err != nil {
-		return fmt.Errorf("failed to decode file: %w", err)
+		return fmt.Errorf("failed to read file: %w", err)
+	}
+
+	err = json.Unmarshal([]byte(data), &imposters)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal file: %w", err)
 	}
 
 	req := KillgraveRequest{
@@ -169,10 +166,12 @@ func saveLog(
 	})
 
 	// write to file
-	file.Seek(0, 0)
-	enc := json.NewEncoder(file)
-	enc.SetIndent("", "  ")
-	err = enc.Encode(imposters)
+	impostersJson, err := json.Marshal(imposters)
+	if err != nil {
+		return fmt.Errorf("failed to marshal file: %w", err)
+	}
+
+	err = filePutContents(filepath, impostersJson)
 	if err != nil {
 		return fmt.Errorf("failed to encode file: %w", err)
 	}

@@ -66,3 +66,12 @@ func getFromEnvStringSlice(key string, defaults []string) []string {
 
 	return getSliceFromString(value)
 }
+
+func fileGetContents(filename string) (string, error) {
+	data, err := os.ReadFile(filename)
+	return string(data), err
+}
+
+func filePutContents(name string, data []byte) error {
+	return os.WriteFile(name, data, 0644)
+}
