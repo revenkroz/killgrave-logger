@@ -123,7 +123,7 @@ func saveLog(
 	dec := json.NewDecoder(file)
 	err = dec.Decode(&imposters)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to decode file: %w", err)
 	}
 
 	req := KillgraveRequest{
@@ -157,7 +157,7 @@ func saveLog(
 	}
 	body, err := io.ReadAll(l.Response.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	res.Body = string(body)
@@ -174,7 +174,7 @@ func saveLog(
 	enc.SetIndent("", "  ")
 	err = enc.Encode(imposters)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to encode file: %w", err)
 	}
 
 	return nil
