@@ -166,7 +166,7 @@ func saveLog(
 	})
 
 	// write to file
-	impostersJson, err := json.Marshal(imposters)
+	impostersJson, err := json.MarshalIndent(imposters, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal file: %w", err)
 	}
